@@ -1,6 +1,8 @@
 package org.step.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -12,6 +14,19 @@ public class Course {
     private long id;
     private String name;
     private String description;
+//
+//    @OneToMany(mappedBy = "course")
+//    private List<Rating> ratingList = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_course",
+            joinColumns = @JoinColumn(name = "course_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            foreignKey = @ForeignKey(name = "course_user_fk"),
+            inverseForeignKey = @ForeignKey(name = "user_course_fk")
+    )
+    private List<User> userList = new ArrayList<>();
 
     public Course() {
     }
@@ -20,6 +35,22 @@ public class Course {
         this.id = id;
         this.description = description;
     }
+
+    public List<User> getUserList() {
+        return userList;
+    }
+
+    public void setUserList(List<User> userList) {
+        this.userList = userList;
+    }
+
+    //    public List<Rating> getRatingList() {
+//        return ratingList;
+//    }
+//
+//    public void setRatingList(List<Rating> ratingList) {
+//        this.ratingList = ratingList;
+//    }
 
     public long getId() {
         return id;

@@ -23,7 +23,24 @@ public class Profile {
     @Generated(GenerationTime.INSERT)
     private long countProfiles;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "user_profile_fk"))
+    private User user;
+
     public Profile() {
+    }
+
+    public Profile(String skill, String description) {
+        this.skill = skill;
+        this.description = description;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public UUID getId() {

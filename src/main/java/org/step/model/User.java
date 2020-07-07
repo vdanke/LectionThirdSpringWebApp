@@ -1,15 +1,32 @@
 package org.step.model;
 
 import javax.persistence.*;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(
-        name = "users"
+        name = "users",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"username"}, name = "username_user_uk")},
+        indexes = {@Index(columnList = "username", unique = true)}
 )
-//        uniqueConstraints = {@UniqueConstraint(columnNames = {"username"})},
-//        indexes = {@Index(columnList = "username", unique = true)}
-//        )
+
+@NamedEntityGraph(
+        name = "user.comments",
+        attributeNodes = {
+                @NamedAttributeNode(value = "commentList"),
+                @NamedAttributeNode(value = "profile")
+//                        subgraph = "comment.like")
+        }
+//        subgraphs = {
+//                @NamedSubgraph(
+//                        name = "comment.like",
+//                        type = Like.class,
+//                        attributeNodes = @NamedAttributeNode(
+//                                value = "user"
+//                        )
+//                )
+//        }
+)
 public class User {
 
     @Id
@@ -18,10 +35,35 @@ public class User {
     private Integer id;
     @Column(name = "full_name", length = 250)
     private String fullName;
-    @Column(name = "username", unique = true, length = 120)
+    @Column(name = "username", length = 120, unique = true)
     private String username;
     @Column(name = "password", length = 120)
     private String password;
+
+    @OneToOne(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
+    private Profile profile;
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Comment> commentList = new ArrayList<>();
+
+    // FetchType EAGER только на oneToOne
+
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Like> likeList = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "userList")
+    private List<Course> courseList = new ArrayList<>();
+//    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+//    private List<Rating> ratingList = new ArrayList<>();
+
+    @CollectionTable(
+            name = "authorities",
+            joinColumns = @JoinColumn(name = "user_id"),
+            foreignKey = @ForeignKey(name = "user_authorities_fk")
+    )
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    private Set<Role> authorities = new HashSet<>();
 
     public User() {
     }
@@ -37,6 +79,54 @@ public class User {
         this.fullName = fullName;
         this.username = username;
         this.password = password;
+    }
+
+    public Set<Role> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Set<Role> authorities) {
+        this.authorities = authorities;
+    }
+
+    public List<Course> getCourseList() {
+        return courseList;
+    }
+
+    public void setCourseList(List<Course> courseList) {
+        this.courseList = courseList;
+    }
+
+    //    public List<Rating> getRatingList() {
+//        return ratingList;
+//    }
+//
+//    public void setRatingList(List<Rating> ratingList) {
+//        this.ratingList = ratingList;
+//    }
+
+    public List<Like> getLikeList() {
+        return likeList;
+    }
+
+    public void setLikeList(List<Like> likeList) {
+        this.likeList = likeList;
+    }
+
+    public List<Comment> getCommentList() {
+        return commentList;
+    }
+
+    public void setCommentList(List<Comment> commentList) {
+        this.commentList = commentList;
+    }
+
+    public Profile getProfile() {
+        return profile;
+    }
+
+    public void setProfile(Profile profile) {
+        this.profile = profile;
     }
 
     public Integer getId() {
