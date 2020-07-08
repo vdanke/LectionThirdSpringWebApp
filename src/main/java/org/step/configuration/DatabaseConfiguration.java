@@ -7,10 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.persistence.EntityManagerFactory;
@@ -35,6 +39,11 @@ Destroying context -> destroy method -> close context
 @PropertySources({
         @PropertySource("classpath:db.properties")
 })
+@EnableJpaRepositories(
+        entityManagerFactoryRef = "entityManager",
+        basePackages = "org.step",
+        transactionManagerRef = "transaction"
+)
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 
@@ -54,6 +63,7 @@ public class DatabaseConfiguration {
      */
     @Bean("dataSource")
     @Scope("singleton")
+    @Profile("production")
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
@@ -64,6 +74,15 @@ public class DatabaseConfiguration {
 
         return dataSource;
     }
+
+    @Bean("embeddedDataSource")
+    @Profile("develop")
+    public DataSource embeddedDataSource() {
+        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+
+        return builder.setType(EmbeddedDatabaseType.H2).build();
+    }
+
 
     @Bean
 //    @DependsOn(value = {"dataSource"})
@@ -85,7 +104,7 @@ public class DatabaseConfiguration {
     }
 
     @Bean
-    public JpaTransactionManager transactionManager(@Qualifier("entityManager") EntityManagerFactory entityManagerFactory) {
+    public PlatformTransactionManager transaction(@Qualifier("entityManager") EntityManagerFactory entityManagerFactory) {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
 
         transactionManager.setEntityManagerFactory(entityManagerFactory);

@@ -15,7 +15,7 @@ public interface UserRepository {
 
     List<User> findAllUsers();
 
-    Optional<User> findUserById(Long id);
+    Optional<User> findUserById(Integer id);
 
-    User login(String username, String password);
+    Optional<User> login(String username, String password);
 }

@@ -11,11 +11,9 @@ public interface UserService {
 
     void delete(User user);
 
-    List<User> findAllUsersAfterInsert(User user);
-
     List<User> findAllUsers();
 
-    User findUserById(Long id);
+    User findUserById(Integer id);
 
     User login(String username, String password);
 }

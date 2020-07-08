@@ -5,92 +5,138 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.step.configuration.DatabaseConfiguration;
 import org.step.model.User;
+import org.step.model.projections.UserProjection;
 
-import javax.persistence.EntityGraph;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 import static util.UserData.USER_LIST;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {DatabaseConfiguration.class})
 @Transactional
+@ActiveProfiles("production")
 public class UserRepositoryIT {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+    private UserRepositorySpringData userRepositorySpringData;
+    private List<Integer> ids = new ArrayList<>();
 
-//    @Before
-//    public void setup() {
-//        entityManager.persist(USER_LIST.get(0));
-//        entityManager.persist(USER_LIST.get(1));
-//        entityManager.persist(USER_LIST.get(2));
-//    }
+    @Before
+    public void setup() {
+        userRepositorySpringData.saveAll(USER_LIST)
+                .forEach(u -> ids.add(u.getId()));
+    }
 
     @Test
-    public void userListShouldNotBeEmpty() {
-        List<User> users = entityManager.createQuery("from User u", User.class)
-                .getResultList();
+    public void shouldReturnAllUsers() {
+        List<User> users = userRepositorySpringData.findAll();
 
         Assert.assertFalse(users.isEmpty());
-        Assert.assertTrue(users.contains(USER_LIST.get(0)));
+        Assert.assertEquals(3, users.size());
+    }
+
+    @Test
+    public void shouldReturnUserById() {
+        Integer id = ids.get(0);
+
+        Optional<User> userById = userRepositorySpringData.findById(id);
+
+        Assert.assertTrue(userById.isPresent());
+    }
+
+    @Test
+    public void shouldFindByUsernameAndPassword() {
+        final String username = "first";
+        final String password = "first";
+
+        Optional<User> optionalUser = userRepositorySpringData.findByUsernameAndPassword(username, password);
+
+        Assert.assertTrue(optionalUser.isPresent());
+    }
+
+    @Test
+    public void shouldReturnAllUsersByUsernameLike() {
+        final int expectedListSize = 2;
+
+        List<User> allByUsernameLike = userRepositorySpringData.findAllByUsernameLike("ir");
+
+        long irContainsUsers = allByUsernameLike
+                .stream()
+                .filter(u -> u.getUsername().contains("ir"))
+                .count();
+
+        Assert.assertFalse(allByUsernameLike.isEmpty());
+        Assert.assertEquals(expectedListSize, allByUsernameLike.size());
+        Assert.assertEquals(expectedListSize, irContainsUsers);
+    }
+
+    @Test
+    public void shouldDeleteUserById() {
+        Integer id = ids.get(0);
+
+        userRepositorySpringData.deleteUserById(id);
+
+        boolean isMatch = userRepositorySpringData
+                .findAll()
+                .stream()
+                .anyMatch(u -> u.getId().equals(id));
+
+        Assert.assertFalse(isMatch);
+    }
+
+    @Test
+    public void shouldReturnListOfUsersQueriedBySpEL() {
+        final int expectedListSize = 2;
+
+        List<User> allByUsernameLike = userRepositorySpringData.findByUsernameLikeWithSpEL("ir");
+
+        long irContainsUsers = allByUsernameLike
+                .stream()
+                .filter(u -> u.getUsername().contains("ir"))
+                .count();
+
+        Assert.assertFalse(allByUsernameLike.isEmpty());
+        Assert.assertEquals(expectedListSize, allByUsernameLike.size());
+        Assert.assertEquals(expectedListSize, irContainsUsers);
     }
 
     @Test
     public void shouldReturnUserByIdWithEntityGraph() {
-        EntityGraph<?> entityGraph = entityManager.getEntityGraph("user.comments");
+        Optional<User> byIdWithEntityGraph = userRepositorySpringData.findByIdWithEntityGraph(ids.get(0));
 
-        Map<String, Object> map = new HashMap<>();
-
-        map.put("javax.persistence.loadgraph", entityGraph);
-
-        User singleResult = entityManager.find(User.class, 1, map);
+        Assert.assertTrue(byIdWithEntityGraph.isPresent());
     }
 
     @Test
-    public void shouldReturnUserByIdWithCommentsList() {
-        User user = entityManager.createQuery("select u from User u join fetch u.commentList where u.id=:id", User.class)
-                .setParameter("id", 1)
-                .getSingleResult();
+    public void shouldReturnUserByIdWithEntityGraphFetch() {
+        Optional<User> byIdWithEntityGraphFetch = userRepositorySpringData.findByIdWithEntityGraphFetch(ids.get(0));
+
+        Assert.assertTrue(byIdWithEntityGraphFetch.isPresent());
+        Assert.assertNotNull(byIdWithEntityGraphFetch.get().getCommentList());
     }
 
     @Test
-    public void shouldReturnUserByProfileId() {
-        User user = entityManager.createQuery("select u from User u inner join u.profile where u.profile.id=:id", User.class)
-                .setParameter("id", 1L)
-                .getSingleResult();
+    public void shouldReturnUserProjection() {
+        List<UserProjection> nameContains = userRepositorySpringData.findAllByFullNameContains("ir");
+
+        nameContains.forEach(p -> System.out.println(p.getUsername()));
     }
 
-    @Test
-    public void leftJoinExample() {
-        Object[] ids = entityManager.createQuery("select u, p from User u left join Profile p on u.id=p.user.id where u.id=:id", Object[].class)
-                .setParameter("id", 1)
-                .getSingleResult();
-
-        System.out.println(ids[0].toString() + ids[1].toString());
+    @After
+    public void clean() {
+        userRepositorySpringData.deleteAll();
     }
 
-    @Test
-    public void findUserById() {
-        User user = entityManager.find(User.class, 1);
-
-        Assert.assertNotNull(user);
-        Assert.assertEquals(user.getId().toString(), "1");
+    @Autowired
+    public void setUserRepositorySpringData(UserRepositorySpringData userRepositorySpringData) {
+        this.userRepositorySpringData = userRepositorySpringData;
     }
-
-//    @After
-//    public void clean() {
-//        entityManager.remove(USER_LIST.get(0));
-//        entityManager.remove(USER_LIST.get(1));
-//        entityManager.remove(USER_LIST.get(2));
-//    }
 }

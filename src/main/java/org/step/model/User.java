@@ -27,7 +27,9 @@ import java.util.*;
 //                )
 //        }
 )
-public class User {
+@NamedQuery(name = "User.findByUsername",
+    query = "select u from User u where u.username = ?1")
+public class User extends Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,8 +37,6 @@ public class User {
     private Integer id;
     @Column(name = "full_name", length = 250)
     private String fullName;
-    @Column(name = "username", length = 120, unique = true)
-    private String username;
     @Column(name = "password", length = 120)
     private String password;
 

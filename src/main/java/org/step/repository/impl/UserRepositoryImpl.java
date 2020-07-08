@@ -1,7 +1,5 @@
 package org.step.repository.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 import org.step.model.User;
 import org.step.repository.UserRepository;
@@ -10,9 +8,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,31 +31,35 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
-        return null;
+        entityManager.persist(user);
+        return user;
     }
 
     @Override
     public void delete(User user) {
-
+        entityManager.remove(user);
     }
 
     @Override
     public List<User> findAllUsersAfterInsert(User user) {
-        return null;
+        return entityManager.createQuery("select u from User u", User.class)
+                .getResultList();
     }
 
     @Override
     public List<User> findAllUsers() {
-        return new ArrayList<>();
+        return entityManager.createQuery("select u from User u", User.class)
+                .getResultList();
     }
 
     @Override
-    public Optional<User> findUserById(Long id) {
-        return Optional.empty();
+    public Optional<User> findUserById(Integer id) {
+        return Optional.ofNullable(entityManager.find(User.class, id));
     }
 
     @Override
-    public User login(String username, String password) {
-        return null;
+    public Optional<User> login(String username, String password) {
+        return Optional.ofNullable(entityManager.createQuery("select u from User u where u.username=:username and u.password=:password", User.class)
+                .getSingleResult());
     }
 }
