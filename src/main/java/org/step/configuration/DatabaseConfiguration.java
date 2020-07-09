@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
@@ -45,6 +47,7 @@ Destroying context -> destroy method -> close context
         transactionManagerRef = "transaction"
 )
 @EnableTransactionManagement
+@EnableJpaAuditing
 public class DatabaseConfiguration {
 
 //    @Autowired
@@ -82,7 +85,6 @@ public class DatabaseConfiguration {
 
         return builder.setType(EmbeddedDatabaseType.H2).build();
     }
-
 
     @Bean
 //    @DependsOn(value = {"dataSource"})

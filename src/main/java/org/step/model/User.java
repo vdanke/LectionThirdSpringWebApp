@@ -1,6 +1,11 @@
 package org.step.model;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -29,6 +34,7 @@ import java.util.*;
 )
 @NamedQuery(name = "User.findByUsername",
     query = "select u from User u where u.username = ?1")
+@EntityListeners(AuditingEntityListener.class)
 public class User extends Person {
 
     @Id
@@ -39,6 +45,12 @@ public class User extends Person {
     private String fullName;
     @Column(name = "password", length = 120)
     private String password;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     @OneToOne(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
     private Profile profile;
@@ -79,6 +91,22 @@ public class User extends Person {
         this.fullName = fullName;
         this.username = username;
         this.password = password;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public Set<Role> getAuthorities() {

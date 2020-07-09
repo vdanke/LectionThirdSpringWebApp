@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.step.model.User;
+import org.step.model.projections.UserOpenProjection;
 import org.step.model.projections.UserProjection;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,4 +42,10 @@ public interface UserRepositorySpringData extends AbstractUserRepository<User> {
     Optional<User> findByIdWithEntityGraphFetch(@Param("id") Integer id);
 
     List<UserProjection> findAllByFullNameContains(String fullName);
+
+    @Query("select u from User u")
+    List<UserOpenProjection> findAllWithOpenProjection();
+
+    @Query("select u from User u")
+    <T> Collection<T> findAllWithDifferentProjection(Class<T> tClass);
 }

@@ -12,9 +12,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.step.configuration.DatabaseConfiguration;
 import org.step.model.User;
+import org.step.model.projections.OnlyUsernameClassProjection;
+import org.step.model.projections.UserOpenProjection;
 import org.step.model.projections.UserProjection;
+import org.step.repository.specification.UserSpecification;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +36,9 @@ public class UserRepositoryIT {
     @Before
     public void setup() {
         userRepositorySpringData.saveAll(USER_LIST)
-                .forEach(u -> ids.add(u.getId()));
+                .forEach(u -> {
+                    ids.add(u.getId());
+                });
     }
 
     @Test
@@ -130,8 +136,32 @@ public class UserRepositoryIT {
         nameContains.forEach(p -> System.out.println(p.getUsername()));
     }
 
+    @Test
+    public void shouldReturnOpenProjection() {
+        List<UserOpenProjection> allWithOpenProjection = userRepositorySpringData.findAllWithOpenProjection();
+
+        allWithOpenProjection.forEach(u -> System.out.println(u.getUsernameFullName()));
+    }
+
+    @Test
+    public void shouldReturnWithDifferentProjection() {
+        Collection<UserOpenProjection> allWithDifferentProjection = userRepositorySpringData.findAllWithDifferentProjection(UserOpenProjection.class);
+
+        allWithDifferentProjection.forEach(u -> System.out.println(u.getUsernameFullName()));
+    }
+
+    @Test
+    public void shouldReturnByUsernameLike() {
+        UserSpecification specification = new UserSpecification("irs");
+
+        List<User> all = userRepositorySpringData.findAll(specification);
+
+        all.forEach(u -> System.out.println(u.getUsername()));
+    }
+
     @After
     public void clean() {
+        ids.clear();
         userRepositorySpringData.deleteAll();
     }
 

@@ -46,6 +46,13 @@
       <version>42.2.14</version>
     </dependency>
 
+    <!-- SPRING ASPECTS -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aspects</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
     <!-- SPRING DATA -->
     <dependency>
       <groupId>org.springframework.data</groupId>

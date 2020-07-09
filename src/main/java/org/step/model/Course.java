@@ -11,7 +11,7 @@ public class Course {
 
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
-    private long id;
+    private Long id;
     private String name;
     private String description;
 //
@@ -29,6 +29,11 @@ public class Course {
     private List<User> userList = new ArrayList<>();
 
     public Course() {
+    }
+
+    public Course(String name, String description) {
+        this.name = name;
+        this.description = description;
     }
 
     public Course(long id, String description) {
@@ -52,11 +57,11 @@ public class Course {
 //        this.ratingList = ratingList;
 //    }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
