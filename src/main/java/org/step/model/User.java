@@ -1,10 +1,13 @@
 package org.step.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -41,33 +44,55 @@ public class User extends Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
+    @Size(min = 5, max = 250, message = "Full name is not valid")
+    @NotBlank(message = "Full name cannot be empty")
     @Column(name = "full_name", length = 250)
     private String fullName;
     @Column(name = "password", length = 120)
     private String password;
+    private Integer age;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    public void prePersist() {
+        if (age == null || age.equals(0)) {
+            age = 99;
+        }
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    @JsonIgnore
     @OneToOne(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
     private Profile profile;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comment> commentList = new ArrayList<>();
 
     // FetchType EAGER только на oneToOne
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Like> likeList = new ArrayList<>();
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "userList")
     private List<Course> courseList = new ArrayList<>();
 //    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
 //    private List<Rating> ratingList = new ArrayList<>();
 
+    @JsonIgnore
     @CollectionTable(
             name = "authorities",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -80,10 +105,11 @@ public class User extends Person {
     public User() {
     }
 
-    public User(String fullName, String username, String password) {
+    public User(String fullName, String username, String password, Integer age) {
         this.fullName = fullName;
         this.username = username;
         this.password = password;
+        this.age = age;
     }
 
     public User(Integer id, String fullName, String username, String password) {
@@ -92,6 +118,8 @@ public class User extends Person {
         this.username = username;
         this.password = password;
     }
+
+
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -132,6 +160,15 @@ public class User extends Person {
 //    public void setRatingList(List<Rating> ratingList) {
 //        this.ratingList = ratingList;
 //    }
+
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
 
     public List<Like> getLikeList() {
         return likeList;

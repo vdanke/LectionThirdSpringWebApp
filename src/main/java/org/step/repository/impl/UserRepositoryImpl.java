@@ -17,7 +17,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @PersistenceContext
     private EntityManager entityManager;
-    private final User user = new User("first", "first", "first");
+    private final User user = new User("first", "first", "first", 20);
 
     @PostConstruct
     public void init() throws SQLException {

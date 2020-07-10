@@ -19,13 +19,10 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
     private final UserRepositorySpringData userRepositorySpringData;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository,
-                           UserRepositorySpringData userRepositorySpringData) {
-        this.userRepository = userRepository;
+    public UserServiceImpl(UserRepositorySpringData userRepositorySpringData) {
         this.userRepositorySpringData = userRepositorySpringData;
     }
 

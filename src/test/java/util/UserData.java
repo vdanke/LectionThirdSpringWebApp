@@ -15,9 +15,9 @@ public class UserData {
     private static final User THIRD;
 
     static {
-        FIRST = new User("first", "first", "first");
-        SECOND = new User("second", "second", "second");
-        THIRD = new User("third", "third", "third");
+        FIRST = new User("first1", "first123@mail.ru", "first", 20);
+        SECOND = new User("second2", "second123@google.com", "second", 30);
+        THIRD = new User("third3", "third123@yandex.ru", "third", 50);
     }
 
     public static final List<User> USER_LIST = new ArrayList<>(Arrays.asList(

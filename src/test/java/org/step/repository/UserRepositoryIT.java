@@ -45,6 +45,8 @@ public class UserRepositoryIT {
     public void shouldReturnAllUsers() {
         List<User> users = userRepositorySpringData.findAll();
 
+        users.forEach(user -> System.out.println(user.getUpdatedAt()));
+
         Assert.assertFalse(users.isEmpty());
         Assert.assertEquals(3, users.size());
     }
@@ -60,8 +62,10 @@ public class UserRepositoryIT {
 
     @Test
     public void shouldFindByUsernameAndPassword() {
-        final String username = "first";
-        final String password = "first";
+        User user = USER_LIST.get(0);
+
+        final String username = user.getUsername();
+        final String password = user.getPassword();
 
         Optional<User> optionalUser = userRepositorySpringData.findByUsernameAndPassword(username, password);
 
