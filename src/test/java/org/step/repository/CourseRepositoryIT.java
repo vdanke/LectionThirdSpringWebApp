@@ -11,7 +11,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
-import org.step.configuration.DatabaseConfiguration;
+import org.step.configuration.db.DatabaseConfiguration;
 import org.step.model.Course;
 import org.step.repository.specification.CourseSearchingObject;
 import org.step.repository.specification.CourseSpecification;

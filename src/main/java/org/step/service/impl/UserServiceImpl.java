@@ -1,15 +1,17 @@
 package org.step.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.step.exception.NotFoundException;
+import org.step.model.Role;
 import org.step.model.User;
-import org.step.repository.UserRepository;
 import org.step.repository.UserRepositorySpringData;
 import org.step.service.UserService;
 
+import java.util.Collections;
 import java.util.List;
 
 /*
@@ -20,15 +22,20 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepositorySpringData userRepositorySpringData;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepositorySpringData userRepositorySpringData) {
+    public UserServiceImpl(UserRepositorySpringData userRepositorySpringData,
+                           PasswordEncoder passwordEncoder) {
         this.userRepositorySpringData = userRepositorySpringData;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public User save(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setAuthorities(Collections.singleton(Role.ROLE_USER));
         return userRepositorySpringData.save(user);
     }
 

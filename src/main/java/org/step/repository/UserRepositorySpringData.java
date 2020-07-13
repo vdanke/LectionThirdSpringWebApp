@@ -17,7 +17,7 @@ public interface UserRepositorySpringData extends AbstractUserRepository<User> {
 
     Optional<User> findByUsernameAndPassword(String username, String password);
 
-    User findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     @Query("select u from User u where u.username like %?1%")
     List<User> findAllByUsernameLike(String username);

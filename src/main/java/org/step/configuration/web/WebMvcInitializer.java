@@ -1,6 +1,7 @@
-package org.step.configuration;
+package org.step.configuration.web;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+import org.step.configuration.db.DatabaseConfiguration;
 
 public class WebMvcInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
 

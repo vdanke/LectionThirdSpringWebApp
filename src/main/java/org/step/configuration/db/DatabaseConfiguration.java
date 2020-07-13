@@ -1,4 +1,4 @@
-package org.step.configuration;
+package org.step.configuration.db;
 
 import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Autowired;

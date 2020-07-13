@@ -35,8 +35,8 @@ import java.util.*;
 //                )
 //        }
 )
-@NamedQuery(name = "User.findByUsername",
-    query = "select u from User u where u.username = ?1")
+//@NamedQuery(name = "User.findByUsername",
+//    query = "select u from User u where u.username = ?1")
 @EntityListeners(AuditingEntityListener.class)
 public class User extends Person {
 
@@ -63,6 +63,9 @@ public class User extends Person {
             age = 99;
         }
         if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
+        if (updatedAt.isBefore(LocalDateTime.now())) {
             updatedAt = LocalDateTime.now();
         }
     }

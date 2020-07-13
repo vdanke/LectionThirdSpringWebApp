@@ -1,5 +1,7 @@
 package org.step.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ public class Course {
 //    @OneToMany(mappedBy = "course")
 //    private List<Rating> ratingList = new ArrayList<>();
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "user_course",
