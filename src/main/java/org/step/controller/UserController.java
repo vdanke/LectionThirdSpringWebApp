@@ -2,20 +2,23 @@ package org.step.controller;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.step.configuration.security.UserDetailsImpl;
 import org.step.model.User;
 import org.step.model.dto.UserDto;
-import org.step.model.dto.request.RegistrationUserRequest;
 import org.step.model.dto.request.UpdateUserRequest;
-import org.step.model.dto.response.RegistrationUserResponse;
 import org.step.service.UserService;
 
-import javax.validation.Valid;
+import javax.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
+@RolesAllowed(value = {"ROLE_ADMIN", "ROLE_USER"})
 public class UserController {
 
     private final UserService userService;
@@ -28,6 +31,7 @@ public class UserController {
     }
 
     @GetMapping
+    @Secured(value = {"ROLE_ADMIN"})
     public List<UserDto> findAllUsers() {
         return userService.findAllUsers()
                 .stream()
@@ -36,6 +40,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public UserDto findUserById(@PathVariable(name = "id") String id) {
         int userId = Integer.parseInt(id);
         User userById = userService.findUserById(userId);
@@ -43,6 +48,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("principal.user.id.toString.equals(#id)")
     public UserDto updateUser(@PathVariable(name = "id") String id,
                               @RequestBody UpdateUserRequest request) {
         User userById = userService.findUserById(Integer.parseInt(id));
@@ -54,12 +60,11 @@ public class UserController {
         return modelMapper.map(afterSaving, UserDto.class);
     }
 
-    @PostMapping
-    public RegistrationUserResponse saveUser(@Valid @RequestBody RegistrationUserRequest request) {
-        User user = new User(request.getFullName(), request.getUsername(), request.getPassword(), request.getAge());
-
-        User afterSaving = userService.save(user);
-
-        return modelMapper.map(afterSaving, RegistrationUserResponse.class);
+    @GetMapping("/cabinet")
+    @PreAuthorize("principal.user.id != null")
+    public User getFullUserInformation(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        UserDetailsImpl principal = (UserDetailsImpl) authentication.getPrincipal();
+        return userDetails.getUser();
     }
 }

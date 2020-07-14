@@ -10,11 +10,13 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.step.model.Course;
+import org.step.model.Role;
 import org.step.model.User;
 import org.step.repository.CourseRepositorySpringData;
 import org.step.repository.UserRepositorySpringData;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Configuration
 public class AppConfiguration {
@@ -52,6 +54,10 @@ public class AppConfiguration {
         User first = new User("first1", "first123@mail.ru", passwordEncoder().encode("first"), 19);
         User second = new User("second2", "second123@google.com", passwordEncoder().encode("second"), 30);
         User third = new User("third3", "third123@yandex.ru", passwordEncoder().encode("third"), 45);
+
+        first.setAuthorities(Collections.singleton(Role.ROLE_USER));
+        second.setAuthorities(Collections.singleton(Role.ROLE_USER));
+        third.setAuthorities(Collections.singleton(Role.ROLE_ADMIN));
 
         userRepository.saveAll(Arrays.asList(first, second, third));
 

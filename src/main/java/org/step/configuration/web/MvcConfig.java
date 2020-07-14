@@ -17,6 +17,8 @@ public class MvcConfig implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowedMethods("*")
                 .allowedOrigins("*")
+//                .exposedHeaders("Token")
+//                .allowCredentials(true)
                 .maxAge(3600L);
     }
 }
